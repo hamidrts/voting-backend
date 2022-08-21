@@ -1,22 +1,13 @@
 const mongoose = require("mongoose");
 const Vote = require("../models/vote");
-
+const Admin = require("../models/Admin");
 const Election = require("../models/election");
+const jwt = require("jsonwebtoken");
 
 const getVote = async (req, res) => {
   const votes = await Vote.find({});
   res.status(200).json(votes);
   console.log("hey");
-};
-
-const postNominate = async (req, res) => {
-  const { name, family, age, id } = req.body;
-  try {
-    const nominate = await Nominate.create({ name, family, age, id });
-    res.status(200).json(nominate);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
 };
 
 const deleteNominate = async (req, res) => {
@@ -105,12 +96,44 @@ const updateElection = async (req, res) => {
   res.status(200).json(election);
 };
 
+const createToken = (_id) => {
+  return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "3d" });
+};
+
+const signupAdmin = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const admin = await Admin.signup(username, password);
+    const token = createToken(admin._id);
+
+    res.status(200).json({ username, token });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const loginAdmin = async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const admin = await Admin.login(username, password);
+    const token = createToken(admin._id);
+
+    res.status(200).json({ username, token });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getVote,
-  postNominate,
   deleteNominate,
   createElection,
   getElection,
   get3LastElection,
   updateElection,
+  loginAdmin,
+  signupAdmin,
 };
