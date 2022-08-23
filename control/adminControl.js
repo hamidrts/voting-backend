@@ -116,6 +116,7 @@ const signupAdmin = async (req, res) => {
 
 const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
+  console.log(username, password);
   try {
     const admin = await Admin.login(username, password);
     const token = createToken(admin._id);

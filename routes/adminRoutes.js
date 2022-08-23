@@ -1,5 +1,7 @@
 const express = require("express");
 
+const requireAuth = require("../middleware/requireAuth");
+
 const {
   getVote,
 
@@ -13,6 +15,11 @@ const {
 } = require("../control/adminControl");
 
 const router = express.Router();
+router.post("/login", loginAdmin);
+
+router.post("/signup", signupAdmin);
+
+router.use(requireAuth);
 
 router.get("/vote", getVote);
 
@@ -25,9 +32,5 @@ router.post("/createElection", createElection);
 router.get("/createElection/getelection", getElection);
 
 router.patch("/:id", updateElection);
-
-router.post("/login", loginAdmin);
-
-router.post("/signup", signupAdmin);
 
 module.exports = router;
