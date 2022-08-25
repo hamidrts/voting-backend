@@ -3,16 +3,16 @@ const Schema = mongoose.Schema;
 
 const voteSchema = new Schema(
   {
-    name: {
+    userId: {
       type: String,
       required: true,
     },
-    family: {
+    electionId: {
       type: String,
       required: true,
     },
-    vote: {
-      type: Number,
+    candidateId: {
+      type: String,
       required: true,
     },
   },

@@ -2,9 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-const homeRoutes = require("./routes/homeRoutes");
+const appRoutes = require("./routes/appRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const usersRoutes = require("./routes/usersRoutes");
 
 const app = express();
 
@@ -12,9 +11,8 @@ app.use(express.json());
 app.use(cors());
 require("dotenv").config();
 
-app.use("/voting", homeRoutes);
+app.use("/voting/app", appRoutes);
 app.use("/voting/admin", adminRoutes);
-app.use("/voting/users", usersRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
