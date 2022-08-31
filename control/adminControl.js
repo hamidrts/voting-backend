@@ -3,6 +3,18 @@ const Vote = require("../models/vote");
 const Admin = require("../models/Admin");
 const Election = require("../models/election");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "../upload/");
+  },
+  filename: (req, file, callback) => {
+    callback(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 const getVote = async (req, res) => {
   const votes = await Vote.find({});

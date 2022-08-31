@@ -39,13 +39,21 @@ const createToken = (_id) => {
 };
 
 const signupUser = async (req, res) => {
-  const { name, email, department, password } = req.body;
-
+  const { name, email, department, userImage, password } = req.body;
+  console.log(req.body);
   try {
-    const user = await User.signup(name, email, department, password);
+    const user = await User.signup(
+      name,
+      email,
+      department,
+      userImage,
+      password
+    );
     const token = createToken(user._id);
     console.log(user);
-    res.status(200).json({ name, email, department, token, id: user._id });
+    res
+      .status(200)
+      .json({ name, email, department, userImage, token, id: user._id });
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: error.message });
@@ -57,6 +65,7 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
+    console.log(user);
 
     res.status(200).json({ user, token, id: user._id });
   } catch (error) {
