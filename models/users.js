@@ -35,7 +35,6 @@ usersSchema.statics.signup = async function (
   userImage,
   password
 ) {
-  console.log(name);
   if (!name || !email || !department || !password) {
     throw Error("all field must be filled");
   }

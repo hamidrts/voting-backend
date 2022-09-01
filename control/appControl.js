@@ -3,6 +3,8 @@ const Vote = require("../models/vote");
 const User = require("../models/users");
 const Election = require("../models/election");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const getOpenElection = async (req, res) => {
   const { department, status } = req.query;
@@ -40,7 +42,7 @@ const createToken = (_id) => {
 
 const signupUser = async (req, res) => {
   const { name, email, department, userImage, password } = req.body;
-  console.log(req.body);
+
   try {
     const user = await User.signup(
       name,
@@ -50,12 +52,11 @@ const signupUser = async (req, res) => {
       password
     );
     const token = createToken(user._id);
-    console.log(user);
+
     res
       .status(200)
       .json({ name, email, department, userImage, token, id: user._id });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -65,11 +66,58 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
-    console.log(user);
 
     res.status(200).json({ user, token, id: user._id });
   } catch (error) {
-    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  const { name, email, department, userImage, id } = req.body;
+  console.log(name);
+
+  const updatedUser = await User.findByIdAndUpdate(
+    { _id: id },
+    { name: name, email: email, department: department, userImage: userImage }
+  );
+
+  if (!updatedUser) {
+    return res.status(400).json({ error: "no such user" });
+  }
+  res.status(200).json(updatedUser);
+  console.log(updatedUser);
+};
+
+const changePassword = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.login(email, password);
+
+    res.status(200).json({ user });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const newPassword = async (req, res) => {
+  const { id, password } = req.body;
+  try {
+    if (!id || !password) {
+      throw Error("all field must be filled");
+    }
+
+    if (!validator.isStrongPassword(password)) {
+      throw Error("Password is not strong enough");
+    }
+    const salt = await bcrypt.genSalt(10);
+
+    const hash = await bcrypt.hash(password, salt);
+    const user = await User.findByIdAndUpdate({ _id: id }, { password: hash });
+    res.status(200).json({ user });
+  } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
@@ -79,4 +127,7 @@ module.exports = {
   postVote,
   signupUser,
   loginUser,
+  updateUser,
+  changePassword,
+  newPassword,
 };
