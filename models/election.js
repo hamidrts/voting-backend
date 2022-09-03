@@ -51,6 +51,7 @@ const electionSchema = new Schema(
       required: true,
     },
     candidates: [candidSchema],
+    result: [{ candid: String, votes: Number }],
   },
   { timestamps: true }
 );

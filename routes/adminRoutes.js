@@ -1,6 +1,6 @@
 const express = require("express");
 
-const requireAuth = require("../middleware/requireAuth");
+const requireAuth = require("../middleware/requireAuthAdmin");
 
 const {
   getVote,

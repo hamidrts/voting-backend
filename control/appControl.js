@@ -15,7 +15,6 @@ const getOpenElection = async (req, res) => {
   if (status) {
     parameter.status = status;
   }
-  console.log(parameter);
   const elections = await Election.find(parameter);
   res.status(200).json(elections);
 };
@@ -122,6 +121,20 @@ const newPassword = async (req, res) => {
   }
 };
 
+const getUserVote = async (req, res) => {
+  const { id } = req.params;
+  const votes = await Vote.find({ userId: id });
+  if (votes.length === 0) {
+    res.status(200).json("You have not vote yet!");
+  } else {
+    const electionId = votes.map((vote) => {
+      return { _id: vote.electionId };
+    });
+    const election = await Election.find({ _id: { $in: electionId } });
+    res.status(200).json({ votes, election });
+  }
+};
+
 module.exports = {
   getOpenElection,
   postVote,
@@ -130,4 +143,5 @@ module.exports = {
   updateUser,
   changePassword,
   newPassword,
+  getUserVote,
 };
