@@ -1,6 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const schedule = require("node-schedule");
+const closeElection = require("./schedule-job/closeElection");
+const openElection = require("./schedule-job/openElection");
+
+schedule.scheduleJob("0 1 * * *", closeElection);
+schedule.scheduleJob("0 1 * * *", openElection);
 
 const appRoutes = require("./routes/appRoutes");
 const adminRoutes = require("./routes/adminRoutes");

@@ -74,7 +74,6 @@ const loginUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const { name, email, department, userImage, id } = req.body;
-  console.log(name);
 
   const updatedUser = await User.findByIdAndUpdate(
     { _id: id },
