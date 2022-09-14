@@ -5,6 +5,7 @@ const Election = require("../models/election");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const sentVotesToAdmin = require("../server");
 
 const getOpenElection = async (req, res) => {
   const { department, status } = req.query;
@@ -15,14 +16,19 @@ const getOpenElection = async (req, res) => {
   if (status) {
     parameter.status = status;
   }
-  const elections = await Election.find(parameter);
+  const elections = await Election.find({
+    $and: [
+      { $or: [{ department: department }, { department: "public" }] },
+      { status: "open" },
+    ],
+  });
   res.status(200).json(elections);
 };
 
 const postVote = async (req, res) => {
   const { userId, electionId, candidateId } = req.body;
   const [checkUserVoteNumber] = await Vote.find({ userId, electionId });
-  console.log(checkUserVoteNumber);
+
   if (checkUserVoteNumber) {
     res.status(401).json({ error: "You have already vote" });
   } else {
@@ -84,7 +90,6 @@ const updateUser = async (req, res) => {
     return res.status(400).json({ error: "no such user" });
   }
   res.status(200).json(updatedUser);
-  console.log(updatedUser);
 };
 
 const changePassword = async (req, res) => {

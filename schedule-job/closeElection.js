@@ -10,29 +10,46 @@ const closeElection = async () => {
 
   if (elections) {
     for (let i = 0; i < elections.length; i++) {
-      let result = [];
-      let votes = await Vote.find({ electionId: elections[i]._id });
-
-      if (votes.length > 0) {
-        elections[i].candidates.forEach((element) => {
-          let candidVotes = {};
-          let voteCount = 0;
-          votes.forEach((vote) => {
-            if (vote.candidateId === element._id.toHexString()) {
-              voteCount += 1;
-            }
-          });
-          candidVotes.candid = element._id.toHexString();
-          candidVotes.votes = voteCount;
-          result.push(candidVotes);
-        });
-      }
-      let closeedElection = await Election.findOneAndUpdate(
-        { _id: elections[i]._id },
-        { status: "close", result: result }
-      );
+      const closedElection = await setResult(elections[i]);
     }
   }
+};
+
+const setResult = async (election) => {
+  let result = {};
+  let electionVotes = [];
+  let votes = await Vote.find({ electionId: election._id });
+  let winnerVotes = 0;
+  let winner = [];
+
+  if (votes.length > 0) {
+    election.candidates.forEach((element) => {
+      let candidVotes = {};
+      let voteCount = 0;
+      votes.forEach((vote) => {
+        if (vote.candidateId === element._id.toHexString()) {
+          voteCount += 1;
+        }
+      });
+      if (voteCount > winnerVotes) {
+        winner = [];
+        winner.push(element._id.toHexString());
+      }
+      if (voteCount === winnerVotes) {
+        winner.push(element._id.toHexString());
+      }
+      candidVotes.candid = element._id.toHexString();
+      candidVotes.votes = voteCount;
+      electionVotes.push(candidVotes);
+    });
+  }
+  result.vote = electionVotes;
+  result.winner = winner;
+  let closeedElection = await Election.findOneAndUpdate(
+    { _id: election._id },
+    { status: "close", result: result }
+  );
+  return closeedElection;
 };
 
 module.exports = closeElection;

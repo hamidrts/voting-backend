@@ -19,7 +19,6 @@ const upload = multer({ storage: storage });
 const getVote = async (req, res) => {
   const votes = await Vote.find({});
   res.status(200).json(votes);
-  console.log("hey");
 };
 
 const deleteNominate = async (req, res) => {
@@ -140,6 +139,53 @@ const loginAdmin = async (req, res) => {
   }
 };
 
+const setResultAndClose = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ error: "no such election" });
+  }
+  const election = req.body;
+
+  let result = {};
+  let electionVotes = [];
+  let votes = await Vote.find({ electionId: id });
+  let winnerVotes = 0;
+  let winner = [];
+
+  if (votes.length > 0) {
+    election.candidates.forEach((element) => {
+      let candidVotes = {};
+      let voteCount = 0;
+      votes.forEach((vote) => {
+        if (vote.candidateId === element._id) {
+          voteCount += 1;
+        }
+      });
+      if (voteCount > winnerVotes) {
+        winnerVotes = voteCount;
+        winner = [];
+        winner.push(element._id);
+      } else if (voteCount === winnerVotes) {
+        winner.push(element._id);
+      }
+      candidVotes.candid = element._id;
+      candidVotes.votes = voteCount;
+      electionVotes.push(candidVotes);
+    });
+  }
+  result.votes = electionVotes;
+  result.winner = winner;
+
+  let closeedElection = await Election.findOneAndUpdate(
+    { _id: election._id },
+    { status: "close", result: result }
+  );
+  if (!closeedElection) {
+    return res.status(400).json({ error: "no such election" });
+  }
+  res.status(200).json(closeedElection);
+};
+
 module.exports = {
   getVote,
   deleteNominate,
@@ -149,4 +195,5 @@ module.exports = {
   updateElection,
   loginAdmin,
   signupAdmin,
+  setResultAndClose,
 };

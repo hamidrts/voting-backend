@@ -4,7 +4,7 @@ const requireAuth = require("../middleware/requireAuthAdmin");
 
 const {
   getVote,
-
+  setResultAndClose,
   deleteNominate,
   createElection,
   getElection,
@@ -32,5 +32,7 @@ router.post("/createElection", createElection);
 router.get("/createElection/getelection", getElection);
 
 router.patch("/:id", updateElection);
+
+router.patch("/close/:id", setResultAndClose);
 
 module.exports = router;
